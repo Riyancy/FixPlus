@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "FixPlus",
+    "slug": "fixplus",
+    "scheme": "fixplus",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fixplus.studentapp"
+    },
+    "android": {
+      "package": "com.fixplus.studentapp",
+      "adaptiveIcon": {
+        "backgroundColor": "#F2F9FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"]
+  }
+}
