@@ -94,6 +94,8 @@ export default function ServiceDetailsScreen() {
         )) : (
           <Text style={[styles.body, { color: theme.muted }]}>No customer reviews yet. Customers can rate this service after completing a booking.</Text>
         )}
+
+        <PrimaryButton title="Choose a booking time" icon="calendar-outline" onPress={() => router.push({ pathname: '/book-service', params: { id: service.id } })} style={styles.bookButton} />
       </ScrollView>
     </Screen>
   );
