@@ -62,7 +62,7 @@ export default function HomeScreen() {
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
           {mainCategories.map(category => (
-            <Pressable key={category} onPress={() => router.push('/(tabs)/services')} style={[styles.categoryTile, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Pressable key={category} onPress={() => router.push({ pathname: '/(tabs)/services', params: { category } })} style={[styles.categoryTile, { backgroundColor: theme.surface, borderColor: theme.border }]}>
               <View style={[styles.categoryIcon, { backgroundColor: services.find(service => service.category === category)?.color || theme.soft }]}>
                 <Ionicons name={categoryIcons[category]} size={20} color="#245A83" />
               </View>
@@ -82,7 +82,7 @@ export default function HomeScreen() {
           </Pressable>
         </View>
         {services.slice(0, 3).map(service => (
-          <ServiceCard key={service.id} service={service} onPress={() => router.push('/(tabs)/services')} />
+          <ServiceCard key={service.id} service={service} onPress={() => router.push({ pathname: '/service-details', params: { id: service.id } })} />
         ))}
       </ScrollView>
     </Screen>
