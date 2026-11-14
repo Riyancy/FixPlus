@@ -22,6 +22,8 @@ function AppNavigation() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="service-details" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="repair-entry" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="repair-detail" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </>
   );
