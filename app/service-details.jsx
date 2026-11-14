@@ -8,7 +8,7 @@ import { useApp } from '../contexts/AppContext';
 export default function ServiceDetailsScreen() {
   const params = useLocalSearchParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { theme, services, favouriteIds, toggleFavourite } = useApp();
+  const { theme, services } = useApp();
   const service = services.find((item) => item.id === id);
 
   if (!service) {
@@ -28,7 +28,6 @@ export default function ServiceDetailsScreen() {
     );
   }
 
-  const isFavourite = favouriteIds.includes(service.id);
 
   return (
     <Screen edges={['top', 'bottom']}>
@@ -49,30 +48,10 @@ export default function ServiceDetailsScreen() {
         <View style={styles.titleRow}>
           <View style={styles.titleCopy}>
             <Text style={[styles.title, { color: theme.text }]}>{service.name}</Text>
-            <Text style={[styles.meta, { color: theme.muted }]}>{service.duration} · Local service listing</Text>
+            <Text style={[styles.meta, { color: theme.muted }]}>{service.duration} · Offline maintenance directory</Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={isFavourite ? 'Remove from favourites' : 'Save to favourites'}
-            onPress={() => toggleFavourite(service.id)}
-            style={[styles.saveButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-          >
-            <Ionicons name={isFavourite ? 'heart' : 'heart-outline'} size={22} color={isFavourite ? '#D95261' : theme.primary} />
-          </Pressable>
         </View>
 
-        <View style={[styles.facts, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <View style={styles.fact}>
-            <Text style={[styles.factLabel, { color: theme.muted }]}>STARTING FROM</Text>
-            <Text style={[styles.factValue, { color: theme.primary }]}>Rs. {service.price.toLocaleString()}</Text>
-          </View>
-          <View style={[styles.factDivider, { backgroundColor: theme.border }]} />
-          <View style={styles.fact}>
-            <Text style={[styles.factLabel, { color: theme.muted }]}>CUSTOMER RATING</Text>
-            <Text style={[styles.factValue, { color: theme.text }]}>{service.ratingCount ? `★ ${service.rating.toFixed(1)} / 5` : 'No ratings yet'}</Text>
-            <Text style={[styles.factCaption, { color: theme.muted }]}>{service.ratingCount ? `${service.ratingCount} customer rating${service.ratingCount === 1 ? '' : 's'}` : 'Rate after your booking is completed'}</Text>
-          </View>
-        </View>
 
         <Text style={[styles.sectionTitle, { color: theme.text }]}>About this service</Text>
         <Text style={[styles.body, { color: theme.muted }]}>{service.description}</Text>
@@ -84,18 +63,6 @@ export default function ServiceDetailsScreen() {
             <Text style={[styles.includedText, { color: theme.text }]}>{item}</Text>
           </View>
         ))}
-
-        <Text style={[styles.sectionTitle, styles.reviewsHeading, { color: theme.text }]}>Customer reviews</Text>
-        {service.reviews.length ? service.reviews.slice(-3).reverse().map((review) => (
-          <View key={review.bookingId} style={[styles.reviewCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Text style={[styles.reviewStars, { color: theme.star }]}>{'★'.repeat(review.stars)}{'☆'.repeat(5 - review.stars)} <Text style={[styles.reviewScore, { color: theme.text }]}>{review.stars}/5</Text></Text>
-            {review.comment ? <Text style={[styles.reviewComment, { color: theme.muted }]}>{review.comment}</Text> : <Text style={[styles.reviewComment, { color: theme.muted }]}>No written comment.</Text>}
-          </View>
-        )) : (
-          <Text style={[styles.body, { color: theme.muted }]}>No customer reviews yet. Customers can rate this service after completing a booking.</Text>
-        )}
-
-        <PrimaryButton title="Choose a booking time" icon="calendar-outline" onPress={() => router.push({ pathname: '/book-service', params: { id: service.id } })} style={styles.bookButton} />
       </ScrollView>
     </Screen>
   );

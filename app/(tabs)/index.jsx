@@ -12,11 +12,15 @@ const categoryIcons = {
   'AC & Appliance': 'snow-outline',
   Cleaning: 'sparkles-outline',
   Carpentry: 'hammer-outline',
+  Mechanical: 'cog-outline',
+  'IT & Network': 'laptop-outline',
+  Building: 'business-outline',
+  Safety: 'shield-checkmark-outline',
 };
 
 export default function HomeScreen() {
   const { theme, services, scheme, toggleTheme } = useApp();
-  const mainCategories = categories.filter(category => category !== 'All');
+  const mainCategories = categories.filter((category) => category !== 'All');
 
   return (
     <Screen>
@@ -26,64 +30,72 @@ export default function HomeScreen() {
             <View style={[styles.brandMark, { backgroundColor: theme.action }]}>
               <Ionicons name="build-outline" size={20} color="#FFFFFF" />
             </View>
-            <Text style={[styles.brand, { color: theme.text }]}>FixPlus</Text>
+            <View>
+              <Text style={[styles.brand, { color: theme.text }]}>FixPlus</Text>
+            </View>
           </View>
-          <Pressable onPress={toggleTheme} style={[styles.themeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Toggle dark mode" onPress={toggleTheme} style={[styles.themeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <Ionicons name={scheme === 'light' ? 'moon-outline' : 'sunny-outline'} size={20} color={theme.primary} />
           </Pressable>
         </View>
 
         <View style={[styles.hero, { backgroundColor: theme.primaryDeep }]}>
           <View style={styles.heroCopy}>
-            <Text style={[styles.eyebrow, { color: theme.heroMuted }]}>HOME CARE, MADE SIMPLE</Text>
-            <Text style={[styles.heroTitle, { color: theme.heroForeground }]}>Your home, in good hands.</Text>
-            <Text style={[styles.heroText, { color: theme.heroMuted }]}>Find trusted help for the little fixes and big peace of mind.</Text>
+            <Text style={[styles.heroEyebrow, { color: theme.heroMuted }]}>MAINTENANCE RECORDS, MADE SIMPLE</Text>
+            <Text style={[styles.heroTitle, { color: theme.heroForeground }]}>Organize every repair.</Text>
+            <Text style={[styles.heroText, { color: theme.heroMuted }]}>Track organizational breakdowns, work progress and actual expenses.</Text>
             <Pressable onPress={() => router.push('/(tabs)/services')} style={styles.heroButton}>
-              <Text style={[styles.heroButtonText, { color: theme.action }]}>Explore services</Text>
+              <Text style={[styles.heroButtonText, { color: theme.action }]}>Browse repair types</Text>
               <Ionicons name="arrow-forward" size={16} color={theme.action} />
             </Pressable>
           </View>
-          <View style={[styles.heroIllustration, { backgroundColor: 'rgba(255,255,255,0.65)' }]}>
+          <View style={[styles.heroIllustration, { backgroundColor: scheme === 'dark' ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.68)' }]}>
             <Ionicons name="home" size={36} color={theme.heroForeground} />
+            <View style={styles.heroBadge}><Ionicons name="checkmark" size={14} color={theme.action} /></View>
           </View>
         </View>
 
-        <Pressable onPress={() => router.push('/(tabs)/services')} style={[styles.searchShortcut, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/(tabs)/services')} style={[styles.searchShortcut, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <Ionicons name="search-outline" size={19} color={theme.muted} />
-          <Text style={[styles.searchText, { color: theme.muted }]}>What needs fixing today?</Text>
+          <Text style={[styles.searchText, { color: theme.muted }]}>Browse repair categories</Text>
           <Ionicons name="arrow-forward-circle" size={22} color={theme.primary} />
         </Pressable>
 
         <View style={styles.sectionHeading}>
           <View>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Browse categories</Text>
-            <Text style={[styles.sectionSub, { color: theme.muted }]}>Find the right local specialist</Text>
+            <Text style={[styles.sectionSub, { color: theme.muted }]}>Explore types of maintenance</Text>
           </View>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
-          {mainCategories.map(category => (
-            <Pressable key={category} onPress={() => router.push({ pathname: '/(tabs)/services', params: { category } })} style={[styles.categoryTile, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <View style={[styles.categoryIcon, { backgroundColor: services.find(service => service.category === category)?.color || theme.soft }]}>
+          {mainCategories.map((category) => (
+            <Pressable
+              key={category}
+              onPress={() => router.push({ pathname: '/(tabs)/services', params: { category } })}
+              style={[styles.categoryTile, { backgroundColor: theme.surface, borderColor: theme.border }]}
+            >
+              <View style={[styles.categoryIcon, { backgroundColor: services.find((service) => service.category === category)?.color || theme.soft }]}>
                 <Ionicons name={categoryIcons[category]} size={20} color="#245A83" />
               </View>
               <Text style={[styles.categoryText, { color: theme.text }]} numberOfLines={2}>{category}</Text>
-              <Text style={[styles.categoryCount, { color: theme.muted }]}>{services.filter(service => service.category === category).length} options</Text>
+              <Text style={[styles.categoryCount, { color: theme.muted }]}>{services.filter((service) => service.category === category).length} options</Text>
             </Pressable>
           ))}
         </ScrollView>
 
         <View style={[styles.sectionHeading, styles.popularHeading]}>
           <View>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Popular near you</Text>
-            <Text style={[styles.sectionSub, { color: theme.muted }]}>Browse our service list</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Repair categories</Text>
+            <Text style={[styles.sectionSub, { color: theme.muted }]}>Browse local repair methods</Text>
           </View>
           <Pressable onPress={() => router.push('/(tabs)/services')}>
             <Text style={[styles.viewAll, { color: theme.primary }]}>View all</Text>
           </Pressable>
         </View>
-        {services.slice(0, 3).map(service => (
+        {services.slice(0, 3).map((service) => (
           <ServiceCard key={service.id} service={service} onPress={() => router.push({ pathname: '/service-details', params: { id: service.id } })} />
         ))}
+
       </ScrollView>
     </Screen>
   );
@@ -98,12 +110,13 @@ const styles = StyleSheet.create({
   themeButton: { width: 42, height: 42, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   hero: { borderRadius: 24, padding: 21, flexDirection: 'row', alignItems: 'center', minHeight: 205, overflow: 'hidden' },
   heroCopy: { flex: 1 },
-  eyebrow: { fontSize: 9, fontWeight: '900', letterSpacing: 1.4 },
+  heroEyebrow: { fontSize: 9, fontWeight: '900', letterSpacing: 1.4 },
   heroTitle: { fontSize: 25, lineHeight: 30, fontWeight: '900', marginTop: 9, maxWidth: 220 },
   heroText: { fontSize: 12, lineHeight: 18, marginTop: 8, maxWidth: 220 },
   heroButton: { backgroundColor: '#FFFFFF', borderRadius: 12, alignSelf: 'flex-start', paddingHorizontal: 13, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', marginTop: 15 },
   heroButtonText: { fontWeight: '900', fontSize: 11, marginRight: 7 },
-  heroIllustration: { width: 62, height: 62, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginLeft: 7 },
+  heroIllustration: { width: 62, height: 62, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.13)', justifyContent: 'center', alignItems: 'center', marginLeft: 7 },
+  heroBadge: { position: 'absolute', right: -3, bottom: -2, width: 22, height: 22, borderRadius: 11, backgroundColor: '#F2C766', alignItems: 'center', justifyContent: 'center' },
   searchShortcut: { minHeight: 53, borderRadius: 15, borderWidth: 1, paddingHorizontal: 14, marginTop: 15, flexDirection: 'row', alignItems: 'center' },
   searchText: { flex: 1, fontSize: 13, marginLeft: 9 },
   sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 24, marginBottom: 12 },

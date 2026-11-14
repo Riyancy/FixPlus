@@ -8,8 +8,7 @@ import { useApp } from '../../contexts/AppContext';
 
 const sortOptions = [
   { id: 'recommended', label: 'Recommended' },
-  { id: 'price', label: 'Lowest price' },
-  { id: 'rating', label: 'Top rated' },
+  { id: 'name', label: 'Name A–Z' },
 ];
 
 export default function ServicesScreen() {
@@ -32,12 +31,7 @@ export default function ServicesScreen() {
       const matchesSearch = !searchText || `${service.name} ${service.category} ${service.description}`.toLowerCase().includes(searchText);
       return matchesCategory && matchesSearch;
     });
-    if (sort === 'price') results.sort((first, second) => first.price - second.price);
-    if (sort === 'rating') results.sort((first, second) => {
-      const firstScore = first.rating ?? -1;
-      const secondScore = second.rating ?? -1;
-      return secondScore - firstScore || second.ratingCount - first.ratingCount;
-    });
+    if (sort === 'name') results.sort((a, b) => a.name.localeCompare(b.name));
     return results;
   }, [category, query, services, sort]);
 
@@ -53,7 +47,7 @@ export default function ServicesScreen() {
             accessibilityLabel="Search local services"
             value={query}
             onChangeText={setQuery}
-            placeholder="Try plumbing or cleaning"
+            placeholder="Try generator, pump, network"
             placeholderTextColor={theme.muted}
             returnKeyType="search"
             style={[styles.searchInput, { color: theme.text }]}
@@ -83,7 +77,7 @@ export default function ServicesScreen() {
               const active = sort === item.id;
               return (
                 <Pressable key={item.id} accessibilityRole="button" onPress={() => setSort(active ? 'recommended' : item.id)} style={[styles.sortButton, { borderColor: active ? theme.primary : theme.border, backgroundColor: active ? theme.soft : theme.surface }]}>
-                  <Text style={[styles.sortText, { color: active ? theme.primary : theme.muted }]}>{item.label === 'Lowest price' ? 'Price' : 'Rating'}</Text>
+                  <Text style={[styles.sortText, { color: active ? theme.primary : theme.muted }]}>{item.label}</Text>
                 </Pressable>
               );
             })}

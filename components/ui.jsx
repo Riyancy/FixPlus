@@ -42,16 +42,12 @@ export function PrimaryButton({ title, onPress, icon, style, disabled = false })
 }
 
 export function ServiceCard({ service, onPress }) {
-  const { theme, favouriteIds, toggleFavourite } = useApp();
-  const isFavourite = favouriteIds.includes(service.id);
-  const ratingLabel = service.ratingCount
-    ? `★ ${service.rating.toFixed(1)} · ${service.ratingCount}`
-    : '☆ Not rated';
+  const { theme } = useApp();
   return (
     <View style={[styles.serviceCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${service.name}, from Rs. ${service.price}${service.ratingCount ? `, rated ${service.rating.toFixed(1)} out of 5` : ', not rated yet'}`}
+        accessibilityLabel={service.name}
         onPress={onPress}
         style={({ pressed }) => [styles.serviceMain, { opacity: pressed ? 0.78 : 1 }]}
       >
@@ -60,21 +56,12 @@ export function ServiceCard({ service, onPress }) {
         </View>
         <View style={styles.serviceCopy}>
           <Text style={[styles.serviceName, { color: theme.text }]} numberOfLines={1}>{service.name}</Text>
-          <Text style={[styles.serviceMeta, { color: theme.muted }]}>{service.category} · {service.duration}</Text>
+          <Text style={[styles.serviceMeta, { color: theme.muted }]}>{service.category} · Maintenance type</Text>
           <View style={styles.priceRow}>
-            <Text style={[styles.servicePrice, { color: theme.primary }]} numberOfLines={1}>From Rs. {service.price.toLocaleString()}</Text>
-            <Text style={[styles.rating, { color: theme.muted }]}>{ratingLabel}</Text>
+            <Text style={[styles.servicePrice, { color: theme.primary }]} numberOfLines={1}>Repair details</Text>
+
           </View>
         </View>
-      </Pressable>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={isFavourite ? `Remove ${service.name} from favourites` : `Save ${service.name} to favourites`}
-        hitSlop={10}
-        onPress={() => toggleFavourite(service.id)}
-        style={styles.heartButton}
-      >
-        <Ionicons name={isFavourite ? 'heart' : 'heart-outline'} size={22} color={isFavourite ? '#D95261' : theme.muted} />
       </Pressable>
     </View>
   );

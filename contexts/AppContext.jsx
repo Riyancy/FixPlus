@@ -1,14 +1,37 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { services as catalogue } from '../data/services';
 import { themes } from '../constants/theme';
 
 const AppContext = createContext(null);
+// On the web, browser storage is used directly; on Android/iOS use AsyncStorage.
+// Every storage operation is guarded so a disabled storage provider never blanks the app.
+const storage = {
+  async getItem(key) {
+    try {
+      if (Platform.OS === 'web') {
+        return typeof window !== 'undefined' ? window.localStorage.getItem(key) : null;
+      }
+      return await AsyncStorage.getItem(key);
+    } catch { return null; }
+  },
+  async setItem(key, value) {
+    try {
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined') window.localStorage.setItem(key, value);
+      } else {
+        await AsyncStorage.setItem(key, value);
+      }
+    } catch { /* Keep the UI usable if storage is blocked. */ }
+  },
+};
 const STORAGE = {
   favourites: '@fixplus/favourites',
   bookings: '@fixplus/bookings',
   ratings: '@fixplus/ratings',
   theme: '@fixplus/theme',
+  repairs: '@fixplus/repairs',
 };
 
 function parseArray(value) {
@@ -52,6 +75,7 @@ export function AppProvider({ children }) {
   const [favouriteIds, setFavouriteIds] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [ratings, setRatings] = useState([]);
+  const [repairs, setRepairs] = useState([]);
   const [scheme, setScheme] = useState('light');
   const [ready, setReady] = useState(false);
 
@@ -59,12 +83,13 @@ export function AppProvider({ children }) {
     let active = true;
     async function loadSavedState() {
       try {
-        const [savedFavourites, savedBookings, savedRatings, savedTheme] = await Promise.all([
-          AsyncStorage.getItem(STORAGE.favourites),
-          AsyncStorage.getItem(STORAGE.bookings),
-          AsyncStorage.getItem(STORAGE.ratings),
-          AsyncStorage.getItem(STORAGE.theme),
-        ]);
+        const [savedFavourites, savedBookings, savedRatings, savedTheme, savedRepairs] = await Promise.race([Promise.all([
+          storage.getItem(STORAGE.favourites),
+          storage.getItem(STORAGE.bookings),
+          storage.getItem(STORAGE.ratings),
+          storage.getItem(STORAGE.theme),
+          storage.getItem(STORAGE.repairs),
+        ]), new Promise((resolve) => setTimeout(() => resolve([null, null, null, null, null]), 2500))]);
         if (!active) return;
         const validBookings = parseArray(savedBookings).filter(isBookingRecord);
         const bookingById = new Map(validBookings.map((booking) => [booking.id, booking]));
@@ -74,6 +99,7 @@ export function AppProvider({ children }) {
         setFavouriteIds(parseArray(savedFavourites).filter((id) => catalogue.some((service) => service.id === id)));
         setBookings(validBookings);
         setRatings(validRatings);
+        setRepairs(parseArray(savedRepairs).filter((r) => r && typeof r.id === "string" && typeof r.repair === "string"));
         if (savedTheme === 'light' || savedTheme === 'dark') setScheme(savedTheme);
       } catch {
         // The app stays usable with its in-memory defaults if device storage is unavailable.
@@ -88,20 +114,29 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (ready) AsyncStorage.setItem(STORAGE.favourites, JSON.stringify(favouriteIds)).catch(() => {});
+    if (ready) storage.setItem(STORAGE.favourites, JSON.stringify(favouriteIds)).catch(() => {});
   }, [favouriteIds, ready]);
 
   useEffect(() => {
-    if (ready) AsyncStorage.setItem(STORAGE.bookings, JSON.stringify(bookings)).catch(() => {});
+    if (ready) storage.setItem(STORAGE.bookings, JSON.stringify(bookings)).catch(() => {});
   }, [bookings, ready]);
 
   useEffect(() => {
-    if (ready) AsyncStorage.setItem(STORAGE.ratings, JSON.stringify(ratings)).catch(() => {});
+    if (ready) storage.setItem(STORAGE.ratings, JSON.stringify(ratings)).catch(() => {});
   }, [ratings, ready]);
 
   useEffect(() => {
-    if (ready) AsyncStorage.setItem(STORAGE.theme, scheme).catch(() => {});
+    if (ready) storage.setItem(STORAGE.theme, scheme).catch(() => {});
   }, [scheme, ready]);
+
+  useEffect(() => {
+    if (ready) storage.setItem(STORAGE.repairs, JSON.stringify(repairs)).catch(() => {});
+  }, [repairs, ready]);
+
+  const saveRepair = (record) => setRepairs((current) => record.id && current.some((r) => r.id === record.id)
+    ? current.map((r) => r.id === record.id ? { ...r, ...record, updatedAt: new Date().toISOString() } : r)
+    : [{ ...record, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, createdAt: new Date().toISOString() }, ...current]);
+  const deleteRepair = (id) => setRepairs((current) => current.filter((r) => r.id !== id));
 
   const toggleFavourite = (serviceId) => {
     setFavouriteIds((current) => current.includes(serviceId)
@@ -156,6 +191,9 @@ export function AppProvider({ children }) {
   const value = {
     services,
     bookings,
+    repairs,
+    saveRepair,
+    deleteRepair,
     ratings,
     favouriteIds,
     favouriteServices,
